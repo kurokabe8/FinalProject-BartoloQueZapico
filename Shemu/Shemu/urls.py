@@ -16,8 +16,9 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include # Import include
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path('admin/', admin.site.json),
+    path('', include('payroll_app.urls')), # This sends the "home" requests to your app
 ]
