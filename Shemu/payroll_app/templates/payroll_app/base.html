@@ -14,9 +14,9 @@
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Shemu</a> <div class="navbar-nav">
-                <a class="nav-link" href="#">Employees</a> <a class="nav-link" href="#">Payslips</a> </div>
+        <div class="navbar-nav">
+            <a class="nav-link" href="{% url 'employees_list' %}">Employees</a>
+            <a class="nav-link" href="{% url 'payslips_list' %}">Payslips</a>
         </div>
     </nav>
 
