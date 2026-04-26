@@ -52,7 +52,8 @@ def add_overtime(request, pk):
 # payslip separator
 def payslips_list(request): 
     payslips = Payslip.objects.all()
-    return render(request, 'payroll_app/payslips/payslips_list.html', {'payslip': payslips})
+    employees = Employee.objects.all()
+    return render(request, 'payroll_app/payslips/payslips_list.html', {'payslip': payslips, 'employees': employees})
 
 def view_payslip(request, pk): 
     payslip = get_object_or_404(Payslip, pk=pk)
