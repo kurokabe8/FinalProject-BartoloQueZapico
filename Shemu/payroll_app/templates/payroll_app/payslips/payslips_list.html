@@ -1,18 +1,69 @@
 {% extends 'payroll_app/base.html' %}
 
 {% block content %}
-<div class="row justify-content-center py-4">
-    <div style="width: 85%">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="fw-bold text-primary mb-0">Payslips Summary</h1>
-            {% if request.user.is_staff or request.user.is_superuser %}
-                <a href="{% url 'create_payslip' %}" class="btn btn-gradient">
-                    <i class="bi bi-file-earmark-plus"></i> New Payslip
-                </a>
-            {% endif %}
+
+<div class="row justify-content-center py-3">
+    <h1 style="width: 85%">Payroll Creation</h1>
+    <form id="add_menu_form" method="POST" class="card bg-light col-10">
+        {% csrf_token %}
+        <div class="row justify-content-center mx-3 my-3">
+            <div class="col-6">
+                <label for="employee_id" class="form-label text-center w-100">Payroll for:</label>
+                <select name="employee_id" class="form-control text-center" id="employee_id" required>
+                    <option value="">Choose...</option>
+                    <option value="all">All employees</option>
+                    {% for e in employees %}
+                        <option value="{{ e.id_number }}">{{ e.id_number }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
 
-        <span class="border-bottom d-block mb-3"></span>
+        <span class="border-bottom d-block w-100"></span>
+
+        <div class="row mx-3 my-3">
+            <div class="col-4">
+                <label for="month" class="form-label">Month:</label>
+                <select name="month" class="form-control" id="month" required>
+                    <option value="">Choose...</option>
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+            </div>
+            <div class="col-4">
+                <label for="year" class="form-label">Year:</label>
+                <input type="number" class="form-control" id="year" name="year" min="1" required>
+            </div>
+            <div class="col-4">
+                <label for="pay_cycle" class="form-label">Cycle:</label>
+                <select name="pay_cycle" class="form-control" id="pay_cycle" required>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center mb-3">
+            <button type="submit" class="btn btn-primary mx-3">Submit</button>
+        </div>
+    </form>
+
+    <div style="width: 85%">
+        <span class="border-bottom d-block mt-4"></span>
+
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+            <h1 class="fw-bold text-primary mb-0">Payslips Summary</h1>
+        </div>
 
         <div class="table-responsive shadow-sm rounded">
             <table class="table table-hover align-middle">
@@ -33,16 +84,16 @@
                             <td>{{ p.pay_cycle }}</td>
                             <td class="text-success fw-bold">{{ p.total_pay }}</td>
                             <td>
-                                <a href="{% url 'view_payslip' pk=p.pk %}" 
+                                <a href="{% url 'view_payslip' pk=p.pk %}"
                                    class="btn btn-outline-info btn-sm">
-                                    <i class="bi bi-eye"></i> View
+                                    View
                                 </a>
                             </td>
                         </tr>
                     {% empty %}
                         <tr>
                             <td colspan="5" class="text-center text-muted py-4">
-                                <i class="bi bi-file-earmark-text"></i> No payslips found.
+                                No payslips found.
                             </td>
                         </tr>
                     {% endfor %}
@@ -50,22 +101,23 @@
             </table>
         </div>
     </div>
+
 </div>
 
 <style>
-    .btn-gradient {
-        background: linear-gradient(90deg, #ff7373, #ff9a9e);
-        color: #fff;
-        border: none;
-        transition: transform 0.2s ease;
-    }
-    .btn-gradient:hover {
-        transform: scale(1.05);
-        color: #fff;
-    }
-    /* Separator under thead */
-    .table-header-separator tr {
-        border-bottom: 2px solid #dee2e6;
-    }
+.btn-gradient {
+    background: linear-gradient(90deg, #ff7373, #ff9a9e);
+    color: #fff;
+    border: none;
+    transition: transform 0.2s ease;
+}
+.btn-gradient:hover {
+    transform: scale(1.05);
+    color: #fff;
+}
+.table-header-separator tr {
+    border-bottom: 2px solid #dee2e6;
+}
 </style>
+
 {% endblock %}
