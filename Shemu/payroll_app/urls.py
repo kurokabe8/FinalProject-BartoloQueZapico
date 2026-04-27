@@ -16,5 +16,4 @@ urlpatterns = [
     # payslip
     path('payslips/', views.payslips_list, name='payslips_list'),
     path('payslips/view/<int:pk>/', views.view_payslip, name='view_payslip'),
-    path('payslips/create/', views.create_payslip, name='create_payslip'),
 ]

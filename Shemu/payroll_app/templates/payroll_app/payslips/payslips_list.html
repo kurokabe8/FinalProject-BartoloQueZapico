@@ -3,6 +3,7 @@
 {% block content %}
 
 <div class="row justify-content-center py-3">
+    {% if request.user.is_staff or request.user.is_superuser %}
     <h1 style="width: 85%">Payroll Creation</h1>
     <form id="add_menu_form" method="POST" class="card bg-light col-10">
         {% csrf_token %}
@@ -57,6 +58,7 @@
             <button type="submit" class="btn btn-primary mx-3">Submit</button>
         </div>
     </form>
+    {% endif %}
 
     <div style="width: 85%">
         <span class="border-bottom d-block mt-4"></span>

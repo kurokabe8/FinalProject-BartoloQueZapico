@@ -116,14 +116,88 @@ def add_overtime(request, pk):
 # payslip separator
 @login_required
 def payslips_list(request): 
-    if _is_admin(request.user):
-        payslips = Payslip.objects.all()
-    else:
+    if not _require_admin(request):
         employee = _get_employee_from_user(request.user)
         if employee is None:
             return HttpResponseForbidden("No employee record is linked to this account.")
         payslips = Payslip.objects.filter(id_number=employee)
-    return render(request, 'payroll_app/payslips/payslips_list.html', {'payslips': payslips})
+        return render(request, 'payroll_app/payslips/payslips_list.html', {'payslips': payslips})
+
+    payslips = Payslip.objects.all()
+    employees = Employee.objects.all()
+
+    if request.method == 'POST':
+        employee_id = request.POST.get('employee_id')
+        month = request.POST.get('month')
+        year = request.POST.get('year')
+        pay_cycle = int(request.POST.get('pay_cycle'))
+
+        if employee_id == "all":
+            targets = employees
+        else:
+            targets = [get_object_or_404(Employee, id_number=employee_id)]
+
+        errors = []
+        for employee in targets:
+            exists = Payslip.objects.filter(
+                id_number=employee,
+                month=month,
+                year=year,
+                pay_cycle=pay_cycle
+            ).exists()
+            if exists:
+                errors.append(f"Payslip already exists for {employee.id_number}, {month} {year}, cycle {pay_cycle}")
+                continue
+
+            # Base values
+            base_rate = employee.rate / 2
+            allowance = employee.allowance or 0
+            overtime = employee.overtime_pay or 0
+
+            pag_ibig = 0
+            philhealth = 0
+            sss = 0
+            deductions_tax = 0
+
+            if pay_cycle == 1:
+                pag_ibig = 100
+                taxable_income = base_rate + allowance + overtime - pag_ibig
+            else:
+                philhealth = employee.rate * 0.04
+                sss = employee.rate * 0.045
+                taxable_income = base_rate + allowance + overtime - philhealth - sss
+
+            deductions_tax = taxable_income * 0.20
+            total_pay = taxable_income - deductions_tax
+
+            Payslip.objects.create(
+                id_number=employee,
+                month=month,
+                year=year,
+                date_range=request.POST.get('date_range', ''),  # optional
+                pay_cycle=pay_cycle,
+                rate=employee.rate,
+                earnings_allowance=allowance,
+                overtime=overtime,
+                pag_ibig=pag_ibig,
+                deductions_health=philhealth,
+                sss=sss,
+                deductions_tax=deductions_tax,
+                total_pay=total_pay,
+            )
+
+            employee.resetOvertime()
+
+        return render(request, 'payroll_app/payslips/payslips_list.html', {
+            'payslips': Payslip.objects.all(),
+            'employees': employees,
+            'errors': errors
+        })
+
+    return render(request, 'payroll_app/payslips/payslips_list.html', {
+        'payslips': payslips,
+        'employees': employees
+    })
 
 @login_required
 def view_payslip(request, pk): 
@@ -190,5 +264,3 @@ def create_payslip(request):
         employee.resetOvertime()
 
         return redirect('payslips_list')
-
-    return render(request, 'payroll_app/payslips/create_payslip.html')
