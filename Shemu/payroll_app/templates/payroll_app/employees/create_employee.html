@@ -1,10 +1,36 @@
 {% extends 'payroll_app/base.html' %}
 
 {% block content %}
-    <div class="py-5">
-        <h1>Employees Page</h1>
-        <p>This is where the employee table will appear!</p>
-        <button class="btn btn-primary">New Employee</button>
+    <div class="row justify-content-center py-3">
+        <div class="card w-50">
+            <div class="card-header text-center">
+                <h1><strong>Create Employee</strong></h1>
+            </div>
+            <div class="card-body">
+                <form id="add_menu_form" method="POST">
+                    {% csrf_token %}
+                    <div class="col-12">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" min=1 required>
+                    </div>
+                    <div class="col-12">
+                        <label for="id_number" class="form-label">ID Number</label>
+                        <input type="text" class="form-control" id="id_number" name="id_number" min=1 required>
+                    </div>
+                    <div class="col-12">
+                        <label for="rate" class="form-label">Rate</label>
+                        <input type="text" class="form-control" id="rate" name="rate" min=1 required>
+                    </div>
+                    <div class="col-12">
+                        <label for="allowance" class="form-label">Allowance (Optional)</label>
+                        <input type="text" class="form-control" id="allowance" name="allowance" min=1 required>
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-primary my-4">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     
 {% endblock %}
