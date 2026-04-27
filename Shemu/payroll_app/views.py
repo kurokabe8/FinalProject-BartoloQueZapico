@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Employee, Payslip
+from django.contrib.auth.models import User
 
 
 def _is_admin(user):
@@ -67,6 +68,7 @@ def create_employee(request):
         id_number = request.POST.get('id_number')
         rate = request.POST.get('rate')
         allowance = request.POST.get('allowance', 0)
+        password = request.POST.get('password')
 
         Employee.objects.create(
             name= name,
@@ -74,6 +76,18 @@ def create_employee(request):
             rate=float(rate),
             allowance=float(allowance) if allowance else 0
         )
+
+        user = User.objects.create_user(
+            username=id_number,
+            password=password,
+            first_name=name.split()[0],
+            last_name=" ".join(name.split()[1:]) if len(name.split()) > 1 else ""
+        )
+
+        user.is_staff = False
+        user.is_superuser = False
+        user.save()
+        
         return redirect('employees_list')
     
     return render(request, 'payroll_app/employees/create_employee.html')

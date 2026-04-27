@@ -14,7 +14,7 @@
                     <option value="">Choose...</option>
                     <option value="all">All employees</option>
                     {% for e in employees %}
-                        <option value="{{ e.name }}">{{ e.name }}</option>
+                        <option value="{{ e.id_number }}">{{ e.id_number }}</option>
                     {% endfor %}
                 </select>
             </div>
