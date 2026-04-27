@@ -2,8 +2,25 @@
 
 {% block content %}
     <div class="py-5">
-        <h1>test</h1>
-        <p>test</p>
-        <button class="btn btn-primary">test</button>
+        <p>NAME: {{ payslip.id_number.name }}</p>
+        <p>ID NUMBER: {{ payslip.id_number.id_number }}</p>
+        <p>DATE: {{ payslip.month }} {{ payslip.date_range }} {{ payslip.year }}</p>
+        <p>PAYSLIP ID: {{ payslip.pk }}</p>
+        <h3>EARNINGS:</h3>
+        <p>Base pay: {{ payslip.rate }}</p>
+        <p>Allowances: {{ payslip.earnings_allowance }}</p>
+        <p>Overtime: {{ payslip.overtime }}</p>
+        <h3>GROSS PAY</h3>
+        <h3>DEDUCTIONS:</h3>
+        <p>WITHOLDING TAX {{ payslip.deductions_tax }}</p>
+        {% if payslip.pay_cycle == 1 %}
+            <p>PAG-IBIG {{ payslip.pag_ibig }}</p>
+        {% else %}
+            <p>PHILHEALTH {{ payslip.deductions_health }}</p>
+            <p>SSS {{ payslip.sss }}</p>
+        {% endif %}
+        <h3>TOTAL DEDUCTIONS</h3>
+        <h3>NET PAY:</h3>
+        <p><strong>{{ payslip.total_pay }}</strong></p>
     </div>
 {% endblock %}
