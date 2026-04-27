@@ -1,17 +1,22 @@
 {% extends 'payroll_app/base.html' %}
 
 {% block content %}
-    <div class="row justify-content-center py-3">
-        <div style="width: 85%">
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <h1 class="mb-0">Payslips Summary</h1>
-                {% if request.user.is_staff or request.user.is_superuser %}
-                    <a href="{% url 'create_payslip' %}" class="btn btn-primary">New Payslip</a>
-                {% endif %}
-            </div>
-            <span class="border-bottom d-block mt-3"></span>
-            <table class="table table-striped mb-5">
-                <thead>
+<div class="row justify-content-center py-4">
+    <div style="width: 85%">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="fw-bold text-primary mb-0">Payslips Summary</h1>
+            {% if request.user.is_staff or request.user.is_superuser %}
+                <a href="{% url 'create_payslip' %}" class="btn btn-gradient">
+                    <i class="bi bi-file-earmark-plus"></i> New Payslip
+                </a>
+            {% endif %}
+        </div>
+
+        <span class="border-bottom d-block mb-3"></span>
+
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle">
+                <thead class="table-light table-header-separator">
                     <tr>
                         <th scope="col">ID Number</th>
                         <th scope="col">Date</th>
@@ -23,19 +28,44 @@
                 <tbody>
                     {% for p in payslips %}
                         <tr>
-                            <td>{{ p.id_number.id_number }}</td>
+                            <td class="fw-semibold">{{ p.id_number.id_number }}</td>
                             <td>{{ p.month }} {{ p.date_range }}, {{ p.year }}</td>
                             <td>{{ p.pay_cycle }}</td>
-                            <td>{{ p.total_pay }}</td>
-                            <td><a href="{% url 'view_payslip' pk=p.pk %}" class="btn btn-info">View</a></td>
+                            <td class="text-success fw-bold">{{ p.total_pay }}</td>
+                            <td>
+                                <a href="{% url 'view_payslip' pk=p.pk %}" 
+                                   class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted">No payslips found.</td>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-file-earmark-text"></i> No payslips found.
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+</div>
+
+<style>
+    .btn-gradient {
+        background: linear-gradient(90deg, #ff7373, #ff9a9e);
+        color: #fff;
+        border: none;
+        transition: transform 0.2s ease;
+    }
+    .btn-gradient:hover {
+        transform: scale(1.05);
+        color: #fff;
+    }
+    /* Separator under thead */
+    .table-header-separator tr {
+        border-bottom: 2px solid #dee2e6;
+    }
+</style>
 {% endblock %}

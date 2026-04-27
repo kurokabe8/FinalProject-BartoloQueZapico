@@ -3,28 +3,48 @@
 {% block content %}
 <div class="row justify-content-center py-5">
     <div class="col-md-5 col-lg-4">
-        <div class="card shadow-sm">
+        <div class="card shadow-lg border-0 bg-white">
             <div class="card-body p-4">
-                <h3 class="mb-3 text-center">Login</h3>
+                <h3 class="mb-4 text-center text-primary fw-bold">Sign In</h3>
+
                 {% if error %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                <div class="alert alert-danger text-center" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> {{ error }}
                 </div>
                 {% endif %}
+
                 <form method="post">
                     {% csrf_token %}
+                    
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" required>
                     </div>
+
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
+                        <label for="password" class="form-label fw-semibold">Password</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Sign In</button>
+
+                    <button type="submit" class="btn btn-gradient w-100 py-2">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .btn-gradient {
+        background: linear-gradient(90deg, #ff7373, #ff9a9e);
+        color: #fff;
+        border: none;
+        transition: transform 0.2s ease;
+    }
+    .btn-gradient:hover {
+        transform: scale(1.05);
+        color: #fff;
+    }
+</style>
 {% endblock %}

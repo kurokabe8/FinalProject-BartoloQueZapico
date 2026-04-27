@@ -1,36 +1,56 @@
 {% extends 'payroll_app/base.html' %}
 
 {% block content %}
-    <div class="row justify-content-center py-3">
-        <div class="card w-50">
-            <div class="card-header text-center">
-                <h1><strong>Create Employee</strong></h1>
-            </div>
-            <div class="card-body">
-                <form id="add_menu_form" method="POST">
-                    {% csrf_token %}
-                    <div class="col-12">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" min=1 required>
-                    </div>
-                    <div class="col-12">
-                        <label for="id_number" class="form-label">ID Number</label>
-                        <input type="text" class="form-control" id="id_number" name="id_number" min=1 required>
-                    </div>
-                    <div class="col-12">
-                        <label for="rate" class="form-label">Rate</label>
-                        <input type="text" class="form-control" id="rate" name="rate" min=1 required>
-                    </div>
-                    <div class="col-12">
-                        <label for="allowance" class="form-label">Allowance (Optional)</label>
-                        <input type="text" class="form-control" id="allowance" name="allowance" min=1 required>
-                    </div>
-                    <div class="text-center">
-                        <button class="btn btn-primary my-4">Submit</button>
-                    </div>
-                </form>
-            </div>
+<div class="row justify-content-center py-4">
+    <div class="card shadow-lg w-50 bg-white">
+        <div class="card-header text-center bg-white border-bottom">
+            <h1 class="h4 mb-0 text-dark"><strong>Create Employee</strong></h1>
+        </div>
+
+        <div class="card-body">
+            <form id="add_employee_form" method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="name" class="form-label fw-semibold text-dark">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_number" class="form-label fw-semibold text-dark">ID Number</label>
+                    <input type="text" class="form-control" id="id_number" name="id_number" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="rate" class="form-label fw-semibold text-dark">Rate</label>
+                    <input type="number" step="0.01" class="form-control" id="rate" name="rate" required min="1">
+                </div>
+
+                <div class="mb-3">
+                    <label for="allowance" class="form-label fw-semibold text-dark">Allowance (Optional)</label>
+                    <input type="number" step="0.01" class="form-control" id="allowance" name="allowance" min="0">
+                </div>
+
+                <div class="text-center">
+                    <button class="btn btn-gradient px-4 py-2 mt-3">
+                        <i class="bi bi-check-circle"></i> Submit
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-    
+</div>
+
+<style>
+    .btn-gradient {
+        background: linear-gradient(90deg, #ff7373, #ff9a9e);
+        color: #fff;
+        border: none;
+        transition: transform 0.2s ease;
+    }
+    .btn-gradient:hover {
+        transform: scale(1.05);
+        color: #fff;
+    }
+</style>
 {% endblock %}
