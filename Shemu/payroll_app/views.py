@@ -99,7 +99,7 @@ def update_employee(request, pk): # still should not work wala pa tayo pk
     employee = get_object_or_404(Employee, pk=pk)
     if request.method == 'POST':
         employee.name = request.POST.get('name')
-        employee.id_number = request.POST.get('id_number')
+        #employee.id_number = request.POST.get('id_number') no need since this field should b locked
         employee.rate = float(request.POST.get('rate'))
         employee.allowance = float(request.POST.get('allowance', 0))
         employee.save()
