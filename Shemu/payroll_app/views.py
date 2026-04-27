@@ -1,12 +1,67 @@
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Employee, Payslip
 
+
+def _is_admin(user):
+    return user.is_staff or user.is_superuser
+
+
+def _get_employee_from_user(user):
+    return Employee.objects.filter(id_number=user.username).first()
+
+
+def _require_admin(request):
+    return _is_admin(request.user)
+
+
+def _require_employee(request):
+    return request.user.is_authenticated and (not _is_admin(request.user))
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    context = {}
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("home")
+        context["error"] = "Invalid username or password."
+
+    return render(request, "payroll_app/login.html", context)
+
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
+
+@login_required
+def home(request):
+    if _is_admin(request.user):
+        return redirect("employees_list")
+    return redirect("payslips_list")
+
 # employee separator
+@login_required
 def employees_list(request):
+    if not _require_admin(request):
+        return HttpResponseForbidden("Only admins can access this page.")
     employees = Employee.objects.all()
     return render(request, 'payroll_app/employees_list.html', {'employees': employees})
 
+@login_required
 def create_employee(request): 
+    if not _require_admin(request):
+        return HttpResponseForbidden("Only admins can access this page.")
     if request.method == 'POST':
         name = request.POST.get('name')
         id_number = request.POST.get('id_number')
@@ -23,7 +78,10 @@ def create_employee(request):
     
     return render(request, 'payroll_app/employees/create_employee.html')
 
+@login_required
 def update_employee(request, pk): # still should not work wala pa tayo pk
+    if not _require_admin(request):
+        return HttpResponseForbidden("Only admins can access this page.")
     employee = get_object_or_404(Employee, pk=pk)
     if request.method == 'POST':
         employee.name = request.POST.get('name')
@@ -35,12 +93,18 @@ def update_employee(request, pk): # still should not work wala pa tayo pk
     
     return render(request, 'payroll_app/employees/update_employee.html')
 
+@login_required
 def delete_employee(request, pk): 
+    if not _require_admin(request):
+        return HttpResponseForbidden("Only admins can access this page.")
     employee = get_object_or_404(Employee, pk=pk)
     employee.delete()
     return redirect('employees_list')
 
+@login_required
 def add_overtime(request, pk): 
+    if not _require_admin(request):
+        return HttpResponseForbidden("Only admins can access this page.")
     employee = get_object_or_404(Employee, pk=pk)
     if request.method == 'POST':
         hours = float(request.POST.get('hours', 0)) # whoever makes this pls make sure hours ung nasa form 
@@ -50,15 +114,30 @@ def add_overtime(request, pk):
     return redirect('employees_list')
 
 # payslip separator
+@login_required
 def payslips_list(request): 
-    payslips = Payslip.objects.all()
-    return render(request, 'payroll_app/payslips/payslips_list.html', {'payslip': payslips})
+    if _is_admin(request.user):
+        payslips = Payslip.objects.all()
+    else:
+        employee = _get_employee_from_user(request.user)
+        if employee is None:
+            return HttpResponseForbidden("No employee record is linked to this account.")
+        payslips = Payslip.objects.filter(id_number=employee)
+    return render(request, 'payroll_app/payslips/payslips_list.html', {'payslips': payslips})
 
+@login_required
 def view_payslip(request, pk): 
     payslip = get_object_or_404(Payslip, pk=pk)
+    if _require_employee(request):
+        employee = _get_employee_from_user(request.user)
+        if employee is None or payslip.id_number != employee:
+            return HttpResponseForbidden("You can only view your own payslips.")
     return render(request, 'payroll_app/payslips/view_payslip.html', {'payslip': payslip})
 
+@login_required
 def create_payslip(request):
+    if not _require_admin(request):
+        return HttpResponseForbidden("Only admins can access this page.")
     if request.method == 'POST':
         employee_id = request.POST.get('employee_id')
         month = request.POST.get('month')
