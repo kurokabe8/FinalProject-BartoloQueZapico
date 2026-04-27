@@ -2,25 +2,88 @@
 
 {% block content %}
     <div class="py-5">
-        <p>NAME: {{ payslip.id_number.name }}</p>
-        <p>ID NUMBER: {{ payslip.id_number.id_number }}</p>
-        <p>DATE: {{ payslip.month }} {{ payslip.date_range }} {{ payslip.year }}</p>
-        <p>PAYSLIP ID: {{ payslip.pk }}</p>
-        <h3>EARNINGS:</h3>
-        <p>Base pay: {{ payslip.rate }}</p>
-        <p>Allowances: {{ payslip.earnings_allowance }}</p>
-        <p>Overtime: {{ payslip.overtime }}</p>
-        <h3>GROSS PAY</h3>
-        <h3>DEDUCTIONS:</h3>
-        <p>WITHOLDING TAX {{ payslip.deductions_tax }}</p>
+        <div class="row mb-3">
+            <div class="col-6">
+                <p class="mb-0">NAME: {{ payslip.id_number.name }}</p>
+                <p>ID NUMBER: {{ payslip.id_number.id_number }}</p>
+            </div>
+            <div class="col-6 text-end">
+                <p class="mb-0">DATE: {{ payslip.month }} {{ payslip.date_range }} {{ payslip.year }}</p>
+                <p>PAYSLIP ID: {{ payslip.pk }}</p>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-6">
+                <h3>EARNINGS:</h3>
+                <p class="mb-0">Base pay:</p>
+                <p class="mb-0">Allowances:</p>
+                <p class="mb-0">Overtime:</p>
+            </div>
+            <div class="col-6">
+                <h3 class="text-center">AMOUNT</h3>
+                <p class="mb-0 text-start">{{ payslip.rate }}</p>
+                <p class="mb-0 text-start">{{ payslip.earnings_allowance }}</p>
+                <p class="mb-0 text-start">{{ payslip.overtime }}</p>
+            </div>
+        </div>
+        <span class="border-bottom d-block w-100"></span>
+        <div class="row my-3">
+            <div class="col-6">
+                <h3>GROSS PAY</h3>
+            </div>
+            <div class="col-6">
+                <h3 class="text-center">PHP {{ payslip.getGrossPay }}</h3>
+            </div>
+        </div>
+        <span class="border-bottom d-block w-100"></span>
+        <div class="row mt-4 mb-0">
+            <div class="col-6">
+                <h3>DEDUCTIONS:</h3>
+                <p class="mb-0 text-start">WITHOLDING TAX</p>
+            </div>
+            <div class="col-6">
+                <br><br>
+                <p class="mb-0 text-start">{{ payslip.deductions_tax }}</p>
+            </div>
+        </div>
         {% if payslip.pay_cycle == 1 %}
-            <p>PAG-IBIG {{ payslip.pag_ibig }}</p>
+            <div class="row my-0">
+                <div class="col-6">
+                    <p class="mb-0 text-start">PAG-IBIG</p>
+                </div>
+                <div class="col-6">
+                    <p class="mb-0 text-start">{{ payslip.pag_ibig }}</p>
+                </div>
+            </div>
         {% else %}
-            <p>PHILHEALTH {{ payslip.deductions_health }}</p>
-            <p>SSS {{ payslip.sss }}</p>
+            <div class="row my-0">
+                <div class="col-6">
+                    <p class="mb-0 text-start">PHILHEALTH</p>
+                    <p class="mb-0 text-start">SSS</p>
+                </div>
+                <div class="col-6">
+                    <p class="mb-0 text-start">{{ payslip.deductions_health }}</p>
+                    <p class="mb-0 text-start">{{ payslip.sss }}</p>
+                    <span class="border-bottom d-block w-100"></span>
+                </div>
+            </div>
         {% endif %}
-        <h3>TOTAL DEDUCTIONS</h3>
-        <h3>NET PAY:</h3>
-        <p><strong>{{ payslip.total_pay }}</strong></p>
+        <div class="row my-3">
+            <div class="col-6">
+                <h3>TOTAL DEDUCTIONS</h3>
+            </div>
+            <div class="col-6">
+                <h3 class="text-center">PHP {{ payslip.total_deductions }}</h3>
+            </div>
+        </div>
+        <span class="border-bottom d-block w-100"></span>
+        <div class="row my-5">
+            <div class="col-6">
+                <h3>NET PAY:</h3>
+            </div>
+            <div class="col-6">
+                <h3 class="text-center">PHP {{ payslip.total_pay}}</h3>
+            </div>
+        </div>
     </div>
 {% endblock %}
