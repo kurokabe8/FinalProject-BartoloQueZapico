@@ -91,7 +91,7 @@ def update_employee(request, pk): # still should not work wala pa tayo pk
         employee.save()
         return redirect('employees_list')
     
-    return render(request, 'payroll_app/employees/update_employee.html')
+    return render(request, 'payroll_app/employees/update_employee.html', {'employee': employee})
 
 @login_required
 def delete_employee(request, pk): 
