@@ -153,6 +153,7 @@ def payslips_list(request):
 
         errors = []
         for employee in targets:
+
             exists = Payslip.objects.filter(
                 id_number=employee,
                 month=month,
@@ -184,11 +185,16 @@ def payslips_list(request):
             deductions_tax = taxable_income * 0.20
             total_pay = taxable_income - deductions_tax
 
+            if pay_cycle == 1:
+                date_range = "1-15"
+            else:
+                date_range = "16-30"
+
             Payslip.objects.create(
                 id_number=employee,
                 month=month,
                 year=year,
-                date_range=request.POST.get('date_range', ''),  # optional
+                date_range=date_range, #request.POST.get('date_range', ''), optional
                 pay_cycle=pay_cycle,
                 rate=employee.rate,
                 earnings_allowance=allowance,
