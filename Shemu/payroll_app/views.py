@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError, transaction
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Employee, Payslip
@@ -63,34 +64,47 @@ def employees_list(request):
 def create_employee(request): 
     if not _require_admin(request):
         return HttpResponseForbidden("Only admins can access this page.")
+    context = {}
     if request.method == 'POST':
-        name = request.POST.get('name')
-        id_number = request.POST.get('id_number')
-        rate = request.POST.get('rate')
+        name = request.POST.get('name', '').strip()
+        id_number = request.POST.get('id_number', '').strip()
+        rate = request.POST.get('rate', '').strip()
         allowance = request.POST.get('allowance', 0)
-        password = request.POST.get('password')
+        password = request.POST.get('password', '')
 
-        Employee.objects.create(
-            name= name,
-            id_number= id_number,
-            rate=float(rate),
-            allowance=float(allowance) if allowance else 0
-        )
+        if User.objects.filter(username=id_number).exists():
+            context["error"] = "ID Number already exists in login accounts."
+            return render(request, 'payroll_app/employees/create_employee.html', context)
+        if Employee.objects.filter(id_number=id_number).exists():
+            context["error"] = "ID Number already exists in employees list."
+            return render(request, 'payroll_app/employees/create_employee.html', context)
 
-        user = User.objects.create_user(
-            username=id_number,
-            password=password,
-            first_name=name.split()[0],
-            last_name=" ".join(name.split()[1:]) if len(name.split()) > 1 else ""
-        )
+        try:
+            with transaction.atomic():
+                Employee.objects.create(
+                    name=name,
+                    id_number=id_number,
+                    rate=float(rate),
+                    allowance=float(allowance) if allowance else 0
+                )
 
-        user.is_staff = False
-        user.is_superuser = False
-        user.save()
+                user = User.objects.create_user(
+                    username=id_number,
+                    password=password,
+                    first_name=name.split()[0] if name else "",
+                    last_name=" ".join(name.split()[1:]) if len(name.split()) > 1 else ""
+                )
+
+                user.is_staff = False
+                user.is_superuser = False
+                user.save()
+        except (IntegrityError, ValueError):
+            context["error"] = "Unable to create employee. Please check inputs and try again."
+            return render(request, 'payroll_app/employees/create_employee.html', context)
         
         return redirect('employees_list')
     
-    return render(request, 'payroll_app/employees/create_employee.html')
+    return render(request, 'payroll_app/employees/create_employee.html', context)
 
 @login_required
 def update_employee(request, pk): # still should not work wala pa tayo pk
