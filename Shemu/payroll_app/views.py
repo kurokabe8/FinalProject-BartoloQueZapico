@@ -160,24 +160,67 @@ def update_employee(request, pk): # still should not work wala pa tayo pk
     employee = get_object_or_404(Employee, pk=pk)
     context = {'employee': employee}
     if request.method == 'POST':
-        employee.name = request.POST.get('name', '').strip()
+        name = request.POST.get('name', '').strip()
+        new_id_number = request.POST.get('id_number', '').strip()
         rate_raw = request.POST.get('rate', '').strip()
         allowance_raw = request.POST.get('allowance', '').strip()
+
+        if not name or not new_id_number:
+            context['error'] = "Name and ID Number are required."
+            employee.name = name
+            employee.id_number = new_id_number
+            return render(request, 'payroll_app/employees/update_employee.html', context)
+
+        if Employee.objects.filter(id_number=new_id_number).exclude(pk=employee.pk).exists():
+            context['error'] = "ID Number already exists in employees list."
+            employee.name = name
+            employee.id_number = new_id_number
+            return render(request, 'payroll_app/employees/update_employee.html', context)
+
+        if User.objects.filter(username=new_id_number).exclude(username=employee.id_number).exists():
+            context['error'] = "ID Number is already used by an existing user account."
+            employee.name = name
+            employee.id_number = new_id_number
+            return render(request, 'payroll_app/employees/update_employee.html', context)
+
         try:
             rate_value = float(rate_raw)
             allowance_value = float(allowance_raw) if allowance_raw else 0
         except ValueError:
             context['error'] = "Rate and allowance must be valid numbers."
+            employee.name = name
+            employee.id_number = new_id_number
             return render(request, 'payroll_app/employees/update_employee.html', context)
 
         if rate_value < 0 or allowance_value < 0:
             context['error'] = "Rate and allowance cannot be negative."
+            employee.name = name
+            employee.id_number = new_id_number
             return render(request, 'payroll_app/employees/update_employee.html', context)
 
-        #employee.id_number = request.POST.get('id_number') no need since this field should b locked
-        employee.rate = rate_value
-        employee.allowance = allowance_value
-        employee.save()
+        old_id_number = employee.id_number
+        try:
+            with transaction.atomic():
+                employee.name = name
+                employee.id_number = new_id_number
+                employee.rate = rate_value
+                employee.allowance = allowance_value
+                employee.save()
+
+                user = User.objects.filter(username=old_id_number).first()
+                if user:
+                    user.username = new_id_number
+                    user.first_name = name.split()[0] if name else ""
+                    user.last_name = " ".join(name.split()[1:]) if len(name.split()) > 1 else ""
+                    user.save()
+        except IntegrityError:
+            context['error'] = "Unable to update employee due to a duplicate or invalid database value."
+            employee.name = name
+            employee.id_number = new_id_number
+            employee.rate = rate_raw
+            employee.allowance = allowance_raw
+            return render(request, 'payroll_app/employees/update_employee.html', context)
+
         return redirect('employees_list')
     
     return render(request, 'payroll_app/employees/update_employee.html', context)
