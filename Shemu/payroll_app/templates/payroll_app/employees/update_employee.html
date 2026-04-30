@@ -8,6 +8,11 @@
         </div>
 
         <div class="card-body">
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endif %}
             <form id="add_employee_form" method="POST">
                 {% csrf_token %}
                 
@@ -23,12 +28,12 @@
 
                 <div class="mb-3">
                     <label for="rate" class="form-label fw-semibold text-dark">Rate</label>
-                    <input type="number" step="0.01" class="form-control" id="rate" name="rate" value="{{ employee.rate }}">
+                    <input type="number" step="0.01" min="0" class="form-control" id="rate" name="rate" value="{{ employee.rate }}" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="allowance" class="form-label fw-semibold text-dark">Allowance (Optional)</label>
-                    <input type="number" step="0.01" class="form-control" id="allowance" name="allowance" value="{{ employee.allowance }}">
+                    <input type="number" step="0.01" min="0" class="form-control" id="allowance" name="allowance" value="{{ employee.allowance }}">
                 </div>
                 
                 <div class="text-center">

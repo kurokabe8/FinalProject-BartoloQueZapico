@@ -67,14 +67,64 @@
             <h1 class="fw-bold text-primary mb-0">Payslips Summary</h1>
         </div>
 
+        <form method="GET" class="card card-body bg-light mb-3">
+            <div class="row g-2 align-items-end">
+                {% if request.user.is_staff or request.user.is_superuser %}
+                <div class="col-md-5">
+                    <label for="id_number_filter" class="form-label mb-1">Filter by ID Number</label>
+                    <select name="id_number" id="id_number_filter" class="form-control">
+                        <option value="all" {% if selected_id == "all" %}selected{% endif %}>All</option>
+                        {% for e in employees %}
+                            <option value="{{ e.id_number }}" {% if selected_id == e.id_number %}selected{% endif %}>{{ e.id_number }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div class="col-md-4">
+                    <label for="pay_cycle_filter" class="form-label mb-1">Filter by Cycle</label>
+                    <select name="pay_cycle" id="pay_cycle_filter" class="form-control">
+                        <option value="all" {% if selected_cycle == "all" %}selected{% endif %}>All</option>
+                        <option value="1" {% if selected_cycle == "1" %}selected{% endif %}>1</option>
+                        <option value="2" {% if selected_cycle == "2" %}selected{% endif %}>2</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">Apply Filter</button>
+                    <a href="{% url 'payslips_list' %}" class="btn btn-outline-secondary w-100">Reset</a>
+                </div>
+            </div>
+        </form>
+
         <div class="table-responsive shadow-sm rounded">
             <table class="table table-hover align-middle">
                 <thead class="table-light table-header-separator">
                     <tr>
-                        <th scope="col">ID Number</th>
-                        <th scope="col">Date</th>
+                        <th scope="col">
+                            <a class="sort-link" href="?id_number={{ selected_id }}&pay_cycle={{ selected_cycle }}&sort_by=id_number&sort_order={% if sort_by == 'id_number' and sort_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                ID Number
+                                <span class="sort-arrow">
+                                    {% if sort_by == 'id_number' %}
+                                        {% if sort_order == 'asc' %}&uarr;{% else %}&darr;{% endif %}
+                                    {% else %}
+                                        &uarr;&darr;
+                                    {% endif %}
+                                </span>
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a class="sort-link" href="?id_number={{ selected_id }}&pay_cycle={{ selected_cycle }}&sort_by=date&sort_order={% if sort_by == 'date' and sort_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Date
+                                <span class="sort-arrow">
+                                    {% if sort_by == 'date' %}
+                                        {% if sort_order == 'asc' %}&uarr;{% else %}&darr;{% endif %}
+                                    {% else %}
+                                        &uarr;&darr;
+                                    {% endif %}
+                                </span>
+                            </a>
+                        </th>
                         <th scope="col">Cycle</th>
-                        <th scope="col">Total Pay</th>
+                        <th scope="col" class="text-end total-pay-header">Total Pay</th>
                         <th scope="col">Options</th>
                     </tr>
                 </thead>
@@ -84,7 +134,7 @@
                             <td class="fw-semibold">{{ p.id_number.id_number }}</td>
                             <td>{{ p.month }} {{ p.date_range }}, {{ p.year }}</td>
                             <td>{{ p.pay_cycle }}</td>
-                            <td class="text-success fw-bold">{{ p.total_pay }}</td>
+                            <td class="text-success fw-bold text-end pay-value">PHP {{ p.total_pay|floatformat:2 }}</td>
                             <td>
                                 <a href="{% url 'view_payslip' pk=p.pk %}"
                                    class="btn btn-outline-info btn-sm">
@@ -119,6 +169,26 @@
 }
 .table-header-separator tr {
     border-bottom: 2px solid #dee2e6;
+}
+.pay-value {
+    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.total-pay-header {
+    min-width: 170px;
+}
+.sort-link {
+    color: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+.sort-link:hover {
+    color: #0d6efd;
+}
+.sort-arrow {
+    font-size: 0.8rem;
 }
 </style>
 
