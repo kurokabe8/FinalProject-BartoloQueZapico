@@ -154,7 +154,7 @@ def create_employee(request):
     return render(request, 'payroll_app/employees/create_employee.html', context)
 
 @login_required
-def update_employee(request, pk): # still should not work wala pa tayo pk
+def update_employee(request, pk):    
     if not _require_admin(request):
         return HttpResponseForbidden("Only admins can access this page.")
     employee = get_object_or_404(Employee, pk=pk)
@@ -165,23 +165,12 @@ def update_employee(request, pk): # still should not work wala pa tayo pk
         rate_raw = request.POST.get('rate', '').strip()
         allowance_raw = request.POST.get('allowance', '').strip()
 
-        if not name or not new_id_number:
-            context['error'] = "Name and ID Number are required."
+        if not name:
+            context['error'] = "Name is required."
             employee.name = name
-            employee.id_number = new_id_number
             return render(request, 'payroll_app/employees/update_employee.html', context)
 
-        if Employee.objects.filter(id_number=new_id_number).exclude(pk=employee.pk).exists():
-            context['error'] = "ID Number already exists in employees list."
-            employee.name = name
-            employee.id_number = new_id_number
-            return render(request, 'payroll_app/employees/update_employee.html', context)
-
-        if User.objects.filter(username=new_id_number).exclude(username=employee.id_number).exists():
-            context['error'] = "ID Number is already used by an existing user account."
-            employee.name = name
-            employee.id_number = new_id_number
-            return render(request, 'payroll_app/employees/update_employee.html', context)
+    
 
         try:
             rate_value = float(rate_raw)
@@ -202,14 +191,12 @@ def update_employee(request, pk): # still should not work wala pa tayo pk
         try:
             with transaction.atomic():
                 employee.name = name
-                employee.id_number = new_id_number
                 employee.rate = rate_value
                 employee.allowance = allowance_value
                 employee.save()
 
                 user = User.objects.filter(username=old_id_number).first()
                 if user:
-                    user.username = new_id_number
                     user.first_name = name.split()[0] if name else ""
                     user.last_name = " ".join(name.split()[1:]) if len(name.split()) > 1 else ""
                     user.save()
