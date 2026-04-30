@@ -57,11 +57,16 @@
             <button type="submit" class="btn btn-primary mx-3">Submit</button>
         </div>
         {% csrf_token %}
-                {% if error %}
-            <div class="alert alert-danger">
-                {{ error }}
-            </div>
-        {% endif %}
+            {% if errors %}
+            <div class="alert alert-danger mt-3">
+            <ul class="mb-0">
+            {% for e in errors %}
+                <li>{{ e }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
     </form>
     {% endif %}
 
