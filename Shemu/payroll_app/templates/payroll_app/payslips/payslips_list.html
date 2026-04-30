@@ -3,15 +3,9 @@
 {% block content %}
 
 <div class="row justify-content-center py-3">
-    {% if error %}
-        <div class="alert alert-danger">
-            {{ error }}
-        </div>
-    {% endif %}
     {% if request.user.is_staff or request.user.is_superuser %}
     <h1 style="width: 85%">Payroll Creation</h1>
     <form id="add_menu_form" method="POST" class="card bg-light col-10">
-        {% csrf_token %}
         <div class="row justify-content-center mx-3 my-3">
             <div class="col-6">
                 <label for="employee_id" class="form-label text-center w-100">Payroll for:</label>
@@ -62,6 +56,12 @@
         <div class="text-center mb-3">
             <button type="submit" class="btn btn-primary mx-3">Submit</button>
         </div>
+        {% csrf_token %}
+                {% if error %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+        {% endif %}
     </form>
     {% endif %}
 
