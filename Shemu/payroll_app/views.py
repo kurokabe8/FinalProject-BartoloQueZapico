@@ -245,16 +245,14 @@ def payslips_list(request):
 
         errors = []
         for employee in targets:
-
             exists = Payslip.objects.filter(
                 id_number=employee,
                 month=month,
                 year=year,
-                pay_cycle=pay_cycle
-            ).exists()
+                pay_cycle=pay_cycle).exists()
             if exists:
                 errors.append(f"Payslip already exists for {employee.id_number}, {month} {year}, cycle {pay_cycle}")
-                continue
+                continue 
 
             # Base values
             base_rate = employee.rate / 2
