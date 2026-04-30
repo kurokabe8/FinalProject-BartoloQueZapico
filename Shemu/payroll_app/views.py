@@ -70,6 +70,11 @@ def create_employee(request):
         allowance = request.POST.get('allowance', 0)
         password = request.POST.get('password')
 
+        if Employee.objects.filter(id_number=id_number).exists():
+            return render(request, 'payroll_app/employees/create_employee.html', {
+                'error': 'Employee ID already exists.'
+            })
+
         Employee.objects.create(
             name= name,
             id_number= id_number,
