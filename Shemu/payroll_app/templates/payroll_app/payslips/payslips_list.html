@@ -3,6 +3,11 @@
 {% block content %}
 
 <div class="row justify-content-center py-3">
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+    {% endif %}
     {% if request.user.is_staff or request.user.is_superuser %}
     <h1 style="width: 85%">Payroll Creation</h1>
     <form id="add_menu_form" method="POST" class="card bg-light col-10">
