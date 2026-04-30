@@ -99,20 +99,25 @@ def create_employee(request):
         name = request.POST.get('name', '').strip()
         id_number = request.POST.get('id_number', '').strip()
         rate = request.POST.get('rate', '').strip()
-        allowance = request.POST.get('allowance', 0)
+        allowance = request.POST.get('allowance', '').strip()
         password = request.POST.get('password', '')
 
         existing_employee = Employee.objects.filter(id_number=id_number).exists()
-        existing_user = User.objects.filter(username=id_number).first()
+        existing_user = User.objects.filter(username=id_number).exists()
 
         if existing_employee:
             context["error"] = "ID Number already exists in employees list."
             return render(request, 'payroll_app/employees/create_employee.html', context)
-        # Backward compatibility: old deleted employees may have orphaned auth users.
+
         if existing_user:
-            existing_user.delete()
+            context["error"] = "ID Number is already used by an existing user account."
+            return render(request, 'payroll_app/employees/create_employee.html', context)
 
         try:
+            if not name or not id_number or not password:
+                context["error"] = "Name, ID Number, and password are required."
+                return render(request, 'payroll_app/employees/create_employee.html', context)
+
             rate_value = float(rate)
             allowance_value = float(allowance) if allowance else 0
             if rate_value < 0 or allowance_value < 0:
@@ -137,8 +142,11 @@ def create_employee(request):
                 user.is_staff = False
                 user.is_superuser = False
                 user.save()
-        except (IntegrityError, ValueError):
-            context["error"] = "Unable to create employee. Please check inputs and try again."
+        except ValueError:
+            context["error"] = "Rate and allowance must be valid numbers."
+            return render(request, 'payroll_app/employees/create_employee.html', context)
+        except IntegrityError:
+            context["error"] = "Unable to create employee due to a duplicate or invalid database value."
             return render(request, 'payroll_app/employees/create_employee.html', context)
         
         return redirect('employees_list')
