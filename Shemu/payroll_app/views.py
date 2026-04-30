@@ -373,6 +373,11 @@ def create_payslip(request):
             deductions_tax = taxable_income * 0.20
             total_pay = taxable_income - deductions_tax
 
+        if pay_cycle == 1:
+            date_range = "1-15"
+        else:
+            date_range = "16-30"
+
         payslip = Payslip.objects.create(
             id_number=employee,
             month=month,

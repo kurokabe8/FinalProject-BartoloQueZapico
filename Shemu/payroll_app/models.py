@@ -88,10 +88,10 @@ class Payslip(models.Model):
         return self.total_pay
    
     def getGrossPay(self):
-        return self.rate + self.earnings_allowance + self.overtime #added a def just to calculate the gross pay
+        return (self.rate / 2) + self.earnings_allowance + self.overtime #added a def just to calculate the gross pay
     
     def total_deductions(self):
-        return self.pag_ibig + self.sss + self.deductions_health + self.deductions_tax
+        return self.pag_ibig + self.sss + self.deductions_health + self.deductions_tax #added a def just to calculate the deductions
     
     def __str__(self):
         return f"pk: {self.pk}, Employee: {self.id_number.id_number}, Period: {self.month} {self.date_range}, {self.year}, Cycle: {self.pay_cycle}, Total Pay: {self.total_pay}"
